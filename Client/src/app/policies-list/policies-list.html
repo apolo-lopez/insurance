@@ -1,0 +1,44 @@
+<div class="policies-list">
+  <h2>Policies List</h2>
+
+  <button (click)="openForm()">Create new</button>
+
+  <input
+    type="text"
+    placeholder="Search policies..."
+    [value]="searchTerm"
+    (input)="searchTerm = $event.target.value"
+  />
+  <button (click)="searchPolicies()">Search</button>
+
+  <div *ngIf="isLoading">Loading...</div>
+
+  <app-policy-form *ngIf="showForm" 
+        [policyData]="selectedPolicy" (formSubmit)="onSaved($event)" (closeForm)="closePolicyForm()">
+  </app-policy-form>
+
+  <table *ngIf="!isLoading">
+    <thead>
+      <tr>
+        <th>Policy Number</th>
+        <th>Client Name</th>
+        <th>Start Date</th>
+        <th>End Date</th>
+        <th>Insured Amount</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let policy of policies">
+        <td>{{ policy.policyNumber }}</td>
+        <td>{{ policy.startDate | date }}</td>
+        <td>{{ policy.endDate | date }}</td>
+        <td>{{ policy.insuredAmount | currency }}</td>
+        <td>
+          <button (click)="openForm(policy)">Edit</button>
+          <button>Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

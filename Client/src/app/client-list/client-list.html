@@ -1,0 +1,47 @@
+<div class="client-list">
+  <h2>Client List</h2>
+
+  <button (click)="openForm()">Create a new client</button>
+
+  <input
+    type="text"
+    placeholder="Search clients..."
+    [value]="searchTerm"
+    (input)="searchTerm = $event.target.value"
+  />
+  <button (click)="searchClients()">Search</button>
+
+  <div *ngIf="isLoading">Loading...</div>
+
+  <app-client-form *ngIf="showForm" 
+    [clientData]="selectedClient" (formSubmit)="onSaved($event)" (closeForm)="closeClientForm()">
+  </app-client-form>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Identification</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Address</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let client of clients">
+        <td>
+          {{ client.identificationNumber }}
+        </td>
+        <td>{{ client.name }}</td>
+        <td>{{ client.email }}</td>
+        <td>{{ client.phoneNumber }}</td>
+        <td>{{ client.address }}</td>
+        <td>
+          <button (click)="openForm(client)">Edit</button>
+          <button>Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

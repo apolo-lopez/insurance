@@ -1,0 +1,53 @@
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-evaluation_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-evaluation_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-evaluation_db}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-evaluation_user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  api:
+    build:
+      context: ./API
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=${POSTGRES_DB:-evaluation_db};Username=${POSTGRES_USER:-evaluation_user};Password=${POSTGRES_PASSWORD:-evaluation_pass}
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "5069:80"
+    volumes:
+      - ./src:/app/src:cached
+
+  webui:
+    build:
+      context: ./Client
+      dockerfile: Dockerfile
+    ports:
+      - "5001:80"
+    depends_on:
+      - api
+
+volumes:
+  db_data:  
