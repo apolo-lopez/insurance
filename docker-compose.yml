@@ -3,9 +3,9 @@ services:
     image: postgres:15
     restart: always
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-evaluation_user}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-evaluation_pass}
-      POSTGRES_DB: ${POSTGRES_DB:-evaluation_db}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
@@ -33,7 +33,7 @@ services:
       db:
         condition: service_healthy
     environment:
-      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=${POSTGRES_DB:-evaluation_db};Username=${POSTGRES_USER:-evaluation_user};Password=${POSTGRES_PASSWORD:-evaluation_pass}
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
       - ASPNETCORE_ENVIRONMENT=Development
     ports:
       - "5069:80"
@@ -45,7 +45,7 @@ services:
       context: ./Client
       dockerfile: Dockerfile
     ports:
-      - "5001:80"
+      - "5070:80"
     depends_on:
       - api
 
