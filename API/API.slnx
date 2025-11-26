@@ -2,5 +2,6 @@
   <Project Path="Evaluation.API/Evaluation.API.csproj" />
   <Project Path="Evaluation.Application/Evaluation.Application.csproj" />
   <Project Path="Evaluation.Domain/Evaluation.Domain.csproj" />
+  <Project Path="Evaluation.Infrastructure.Tests/Evaluation.Infrastructure.Tests.csproj" Id="d1059ef0-55c8-4a8f-b0eb-da2242e5d92d" />
   <Project Path="Evaluation.Infrastructure/Evaluation.Infrastructure.csproj" />
 </Solution>
