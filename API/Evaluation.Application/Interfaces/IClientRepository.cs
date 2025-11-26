@@ -10,6 +10,7 @@ namespace Evaluation.Application.Interfaces
     public interface IClientRepository
     {
         Task<Client?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+        Task<Client?> GetByUserIdAsync(Guid id, CancellationToken cancellationToken = default);
         Task<Client?> GetByIdentificationNumberAsync(string identificationNumber, CancellationToken cancellationToken = default);
         Task<IEnumerable<Client>> GetAllAsync(int page, int pageSize = 20, CancellationToken cancellationToken = default);
         Task AddAsync(Client client, CancellationToken cancellationToken = default);

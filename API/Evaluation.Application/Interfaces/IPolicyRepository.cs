@@ -13,7 +13,7 @@ namespace Evaluation.Application.Interfaces
         void Remove(Policy policy);
         Task<bool> ExistsAsync(Guid policyId, CancellationToken cancellationToken = default);
         Task<IEnumerable<Policy>> FindAsync(
-            Guid? clientId = null,
+            Guid? clientId = null,          
             PolicyType? type = null,
             PolicyStatus? status = null,
             DateTime? from = null,

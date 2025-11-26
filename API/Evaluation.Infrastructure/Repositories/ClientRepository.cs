@@ -39,6 +39,11 @@ namespace Evaluation.Infrastructure.Repositories
             return await _dbContext.Clients.FindAsync(new object[] { id }, cancellationToken);
         }
 
+        public async Task<Client?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+        {
+            return await _dbContext.Clients.FirstOrDefaultAsync(x => x.UserId == userId.ToString(), cancellationToken);
+        }
+
         public async Task<Client?> GetByIdentificationNumberAsync(string identificationNumber, CancellationToken cancellationToken = default)
         {
             return await _dbContext.Clients

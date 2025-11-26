@@ -1,40 +1,68 @@
-<form [formGroup]="policyForm" (ngSubmit)="onSubmit()">
-  <label>
-    Client:
-    <input formControlName="clientId" required />
-  </label>
-  <label>
-    Policy Number:
-    <input formControlName="policyNumber" required />
-  </label>
-  <label>
-    Type:
-    <select formControlName="policyType" required>
-      <option value="" disabled>Select type</option>
-      <option *ngFor="let t of types" [value]="t.value">{{ t.label }}</option>
-    </select>
-  </label>
-  <label>
-    Start Date:
-    <input type="date" formControlName="startDate" required />
-  </label>
-  <label>
-    End Date:
-    <input type="date" formControlName="endDate" />
-  </label>
-  <label>
-    Status:
-    <select formControlName="policyStatus" required>
-      <option value="" disabled>Select status</option>
-      <option *ngFor="let s of status" [value]="s.value">{{ s.label }}</option>
-    </select>
-  </label>
-  <label>
-    Insured Amount:
-    <input type="number" formControlName="insuredAmount" required min="0" />
-  </label>
-  <button type="submit" [disabled]="isSaving || policyForm.invalid">
-    {{ policyData ? 'Save Changes' : 'Create policy' }}
-  </button>
-  <button (click)="onClose()">Close</button>
+<h2 mat-dialog-title>
+  {{ policyData ? 'Edit Policy' : 'Create Policy' }}
+</h2>
+
+<form [formGroup]="policyForm" (ngSubmit)="submit()" mat-dialog-content>
+  <mat-form-field appearance="outline" class="full" *ngIf="this.policyData.isAdmin">
+    <mat-label>Client</mat-label>
+    <mat-select formControlName="clientId">
+      <mat-option value="">Seleccione un cliente</mat-option>
+      <mat-option *ngFor="let c of clients" [value]="c.id">
+        {{ c.name }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full">
+    <mat-label>Policy Number</mat-label>
+    <input matInput formControlName="policyNumber" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full">
+    <mat-label>Policy Type</mat-label>
+    <mat-select formControlName="policyType">
+      <mat-option *ngFor="let t of types" [value]="t.value">
+        {{ t.label }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full">
+    <mat-label>Status</mat-label>
+    <mat-select formControlName="policyStatus">
+      <mat-option *ngFor="let s of status" [value]="s.value">
+        {{ s.label }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full">
+    <mat-label>Start Date</mat-label>
+    <input matInput type="date" formControlName="startDate" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full">
+    <mat-label>End Date</mat-label>
+    <input matInput type="date" formControlName="endDate" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full">
+    <mat-label>Insured Amount</mat-label>
+    <input matInput type="number" formControlName="insuredAmount" />
+  </mat-form-field>
+
+  <!-- ACTIONS DENTRO DEL FORM PARA HABILITAR SUBMIT -->
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="close()">Close</button>
+
+    <button
+      mat-raised-button
+      color="primary"
+      type="submit"
+      *ngIf="this.policyData.isAdmin"
+      [disabled]="policyForm.invalid || isSaving"
+    >
+      {{ policyData ? 'Save' : 'Create' }}
+    </button>
+  </mat-dialog-actions>
 </form>

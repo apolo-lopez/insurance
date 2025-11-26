@@ -106,7 +106,7 @@ namespace Evaluation.API.Controllers
                 new Claim(ClaimTypes.Name, user.UserName ?? "")
             };
 
-            // Agregar roles
+            // Add roles
             claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
 
             var token = new JwtSecurityToken(

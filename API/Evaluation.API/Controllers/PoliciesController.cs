@@ -1,5 +1,6 @@
 ﻿using Evaluation.Application.Features.DTOs;
 using Evaluation.Application.Interfaces;
+using Evaluation.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -113,9 +114,24 @@ namespace Evaluation.API.Controllers
         // ---------------------------------------------------------
         [HttpGet("search")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Search([FromQuery] string? policyNumber, [FromQuery] string? clientName)
+        public async Task<IActionResult> Search(
+            [FromQuery] Guid? clientId, 
+            [FromQuery] PolicyType? type,
+            [FromQuery] PolicyStatus? status,
+            [FromQuery] DateTime? from,
+            [FromQuery] DateTime? to,
+            [FromQuery] string? policyNumber,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 20)
         {
-            var results = await _policyService.SearchAsync(policyNumber, clientName);
+            var results = await _policyService.SearchAsync(clientId: clientId,
+                type: type,
+                status: status,
+                from: from,
+                to: to,
+                policyNumber: policyNumber,
+                page: page,
+                pageSize: pageSize);
             return Ok(results);
         }
     }

@@ -1,4 +1,5 @@
 ﻿using Evaluation.Application.Features.DTOs;
+using Evaluation.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +20,16 @@ namespace Evaluation.Application.Interfaces
 
         Task<bool> DeleteAsync(Guid id);
 
-        Task<IEnumerable<PolicySearchResultDto>> SearchAsync(string? policyNumber, string? clientName);
+        Task<IEnumerable<PolicySearchResultDto>> SearchAsync(
+            Guid? clientId = null,
+            PolicyType? type = null,
+            PolicyStatus? status = null,
+            DateTime? from = null,
+            DateTime? to = null,
+            string? policyNumber = null,
+            int page = 1,
+            int pageSize = 20
+        );
 
         // Validate if policy belongs to the client
         Task<bool> ClientOwnsPolicyAsync(string userId, Guid policyId);

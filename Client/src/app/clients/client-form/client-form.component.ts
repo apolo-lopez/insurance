@@ -1,86 +1,83 @@
-import { Component, Input, Output, EventEmitter } from "@angular/core";
-import { FormBuilder, Validators, FormGroup, ReactiveFormsModule } from "@angular/forms";
+import { Component, Input, Output, EventEmitter, Inject } from '@angular/core';
+import { FormBuilder, Validators, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { ClientService } from '../client.service';
-import { Client, IdentificationNumber } from '../client.model';
-import { NgIf } from "@angular/common";
+import { Client } from '../client.model';
+import { NgIf } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 @Component({
-    selector: 'app-client-form',
-    templateUrl: './client-form.component.html',
-    imports: [NgIf, ReactiveFormsModule],
+  selector: 'app-client-form',
+  standalone: true,
+  templateUrl: './client-form.component.html',
+  styleUrl: './client-form.component.css',
+  imports: [
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatInputModule,
+    MatFormFieldModule,
+  ],
 })
 export class ClientFormComponent {
-    @Input() clientData?: Client;
-    @Output() formSubmit: EventEmitter<Client> = new EventEmitter<Client>();
-    @Output() closeForm: EventEmitter<void> = new EventEmitter<void>();
+  clientForm: FormGroup;
+  isSaving = false;
 
-    clientForm: FormGroup;
-    isSaving: boolean = false;
+  constructor(
+    private fb: FormBuilder,
+    private clientService: ClientService,
+    private dialogRef: MatDialogRef<ClientFormComponent>,
+    @Inject(MAT_DIALOG_DATA) public clientData: Client | null
+  ) {
+    this.clientForm = this.fb.group({
+      identificationNumber: ['', [Validators.required, Validators.maxLength(10)]],
+      name: ['', [Validators.required, Validators.maxLength(200)]],
+      email: ['', [Validators.required, Validators.email, Validators.maxLength(250)]],
+      password: ['', [Validators.required]],
+      phoneNumber: ['', [Validators.required, Validators.maxLength(15)]],
+      address: ['', [Validators.maxLength(500)]],
+    });
 
-    constructor(private fb: FormBuilder, private ClientService: ClientService) {
-        this.clientForm = this.fb.group({
-            identificationNumber: ['', [Validators.required, Validators.maxLength(10)]],
-            name: ['', [Validators.required, Validators.maxLength(200)]],
-            email: ['', [Validators.required, Validators.email, Validators.maxLength(250)]],
-            phoneNumber: ['', [Validators.required, Validators.maxLength(15)]],
-            address: ['', [Validators.maxLength(500)]],
-        })
+    // 👉 AQUÍ cargamos los datos
+    if (clientData) {
+      this.clientForm.patchValue(clientData);
     }
+  }
 
-    ngOnChanges(): void {
-        if(this.clientData) {
-            this.clientForm.patchValue({
-                identificationNumber: this.clientData.identificationNumber,
-                name: this.clientData.name,
-                email: this.clientData.email,
-                phoneNumber: this.clientData.phoneNumber,
-                address: this.clientData.address,
-            });
-        }
-    }
+  submit(): void {
+    if (this.clientForm.invalid) return;
 
-    onSubmit(): void {
-        if(this.clientForm.invalid) return;
+    this.isSaving = true;
 
-        this.isSaving = true;
-        const formValues = this.clientForm.value;
-        const client: Client = {
-            ...this.clientData,
-            id: this.clientData?.id ?? '',
-            identificationNumber: formValues.identificationNumber,
-            name: formValues.name,
-            email: formValues.email,
-            phoneNumber: formValues.phoneNumber,
-            address: formValues.address,
-            createdAt: this.clientData?.createdAt || new Date().toISOString()
-        };
+    const formValues = this.clientForm.value;
+    const client: Client = {
+      ...this.clientData,
+      id: this.clientData?.id ?? '',
+      ...formValues,
+      createdAt: this.clientData?.createdAt ?? new Date().toISOString(),
+    };
 
-        if(!this.clientData) {
-            this.ClientService.create(client).subscribe({
-                next: (result) => {
-                    this.formSubmit.emit(result);
-                    this.isSaving = false;
-                },
-                error: (err) => {
-                    console.error('Error creating client', err);
-                    this.isSaving = false;
-                }
-            });
-        } else {
-            this.ClientService.update(this.clientData.id, client).subscribe({
-                next: (result) => {
-                    this.formSubmit.emit(result);
-                    this.isSaving = false;
-                },
-                error: (err) => {
-                    console.error('Error updating client', err);
-                    this.isSaving = false;
-                }
-            });
-        }
-    }
+    const request = this.clientData
+      ? this.clientService.update(client.id!, client)
+      : this.clientService.create(client);
 
-    onClose(): void {
-        this.closeForm.emit();
-    }
+    request.subscribe({
+      next: (result) => {
+        setTimeout(() => {
+          this.isSaving = false;
+          this.dialogRef.close(result);
+        });
+      },
+      error: (err) => {
+        console.error('Error saving client', err);
+        this.isSaving = false;
+      },
+    });
+  }
+
+  close(): void {
+    this.dialogRef.close(null);
+  }
 }

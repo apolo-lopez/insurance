@@ -1,7 +1,64 @@
-<main class="main">
-  <div class="content">
-    <app-navbar></app-navbar>
-  </div>
-</main>
+<mat-sidenav-container class="layout-container">
+  <!-- SIDENAV (solo aparece si está logueado) -->
+  <mat-sidenav
+    #sidenav
+    [mode]="isMobile ? 'over' : 'side'"
+    [opened]="isLoggedIn && !isMobile"
+    class="sidenav"
+  >
+    <mat-toolbar color="primary" class="sidenav-header">
+      <span>Insurance</span>
+    </mat-toolbar>
 
-<router-outlet />
+    <mat-nav-list>
+      <a
+        mat-list-item
+        routerLink="/policies"
+        routerLinkActive="active-link"
+        (click)="closeOnMobile(sidenav)"
+      >
+        <mat-icon matListItemIcon>description</mat-icon>
+        <span>Policies</span>
+      </a>
+
+      <a
+        *ngIf="isAdmin"
+        mat-list-item
+        routerLink="/clients"
+        routerLinkActive="active-link"
+        (click)="closeOnMobile(sidenav)"
+      >
+        <mat-icon matListItemIcon>admin_panel_settings</mat-icon>
+        <span>Clients</span>
+      </a>
+
+      <a mat-list-item (click)="logout(); closeOnMobile(sidenav)">
+        <mat-icon matListItemIcon>logout</mat-icon>
+        <span>Logout</span>
+      </a>
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <!-- MAIN CONTENT -->
+  <mat-sidenav-content>
+    <!-- TOOLBAR solo si está logueado -->
+    <mat-toolbar color="primary" class="main-toolbar" *ngIf="isLoggedIn">
+      <button mat-icon-button (click)="sidenav.toggle()" class="mobile-toggle">
+        <mat-icon>menu</mat-icon>
+      </button>
+
+      <span class="title">Administration</span>
+
+      <span class="spacer"></span>
+
+      <button mat-icon-button>
+        <mat-icon>account_circle</mat-icon>
+      </button>
+    </mat-toolbar>
+
+    <!-- PAGE CONTENT siempre visible -->
+    <div class="page-container">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

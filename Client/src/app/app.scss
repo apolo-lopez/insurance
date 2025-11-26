@@ -1,0 +1,67 @@
+.main-container {
+  height: 100vh;
+}
+
+.layout-container {
+  height: 100vh;
+  background: #f5f6fa;
+}
+
+.sidenav {
+  width: 230px;
+}
+
+.page-content {
+  padding: 24px;   // <-- Esto hace que tus páginas NO se peguen al navbar
+}
+
+.sidenav-header {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  padding-left: 16px;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.main-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.content-wrapper {
+  padding: 24px;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.active-link {
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+.mobile-toggle {
+  margin-right: 12px;
+}
+
+@media (max-width: 768px) {
+  .sidenav {
+    width: 200px;
+  }
+
+  .page-container {
+    padding: 16px;
+  }
+
+  .main-toolbar .title {
+    font-size: 18px;
+  }
+}
+
+.error-snackbar {
+  background-color: #f44336; /* rojo para errores */
+  color: white;
+}
+

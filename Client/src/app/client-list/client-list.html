@@ -1,47 +1,92 @@
-<div class="client-list">
-  <h2>Client List</h2>
+<div class="page-container">
+  <!-- HEADER + CREATE BUTTON -->
+  <div class="header-row">
+    <h2>Clients</h2>
 
-  <button (click)="openForm()">Create a new client</button>
+    <div class="filter-container">
+      <button class="toggle-btn" (click)="filtersOpen = !filtersOpen">
+        {{ filtersOpen ? 'Hide Filters' : 'Show Filters' }}
+      </button>
 
-  <input
-    type="text"
-    placeholder="Search clients..."
-    [value]="searchTerm"
-    (input)="searchTerm = $event.target.value"
-  />
-  <button (click)="searchClients()">Search</button>
+      <div class="filters" *ngIf="filtersOpen">
+        <div class="row">
+          <mat-form-field appearance="outline">
+            <mat-label>ID</mat-label>
+            <input matInput [(ngModel)]="searchIdentification" />
+          </mat-form-field>
 
-  <div *ngIf="isLoading">Loading...</div>
+          <mat-form-field appearance="outline">
+            <mat-label>Name</mat-label>
+            <input matInput [(ngModel)]="searchName" />
+          </mat-form-field>
+        </div>
 
-  <app-client-form *ngIf="showForm" 
-    [clientData]="selectedClient" (formSubmit)="onSaved($event)" (closeForm)="closeClientForm()">
-  </app-client-form>
+        <div class="row">
+          <mat-form-field appearance="outline">
+            <mat-label>Email</mat-label>
+            <input matInput [(ngModel)]="searchEmail" />
+          </mat-form-field>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Identification</th>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Phone</th>
-        <th>Address</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let client of clients">
-        <td>
-          {{ client.identificationNumber }}
-        </td>
-        <td>{{ client.name }}</td>
-        <td>{{ client.email }}</td>
-        <td>{{ client.phoneNumber }}</td>
-        <td>{{ client.address }}</td>
-        <td>
-          <button (click)="openForm(client)">Edit</button>
-          <button>Delete</button>
-        </td>
-      </tr>
-    </tbody>
+          <mat-form-field appearance="outline">
+            <mat-label>Phone</mat-label>
+            <input matInput [(ngModel)]="searchPhone" />
+          </mat-form-field>
+        </div>
+
+        <div class="actions-row">
+          <button mat-flat-button color="primary" (click)="searchClients()">Search</button>
+
+          <button mat-button color="warn" (click)="clearFilters()">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <button mat-flat-button color="primary" (click)="openCreate()">Create Client</button>
+  </div>
+
+  <!-- TABLE -->
+  <table mat-table [dataSource]="clients" class="mat-elevation-z2 full-width">
+    <!-- Identification Number -->
+    <ng-container matColumnDef="identificationNumber">
+      <th mat-header-cell *matHeaderCellDef>ID Number</th>
+      <td mat-cell *matCellDef="let client">{{ client.identificationNumber }}</td>
+    </ng-container>
+
+    <!-- Name -->
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Name</th>
+      <td mat-cell *matCellDef="let client">{{ client.name }}</td>
+    </ng-container>
+
+    <!-- Email -->
+    <ng-container matColumnDef="email">
+      <th mat-header-cell *matHeaderCellDef>Email</th>
+      <td mat-cell *matCellDef="let client">{{ client.email }}</td>
+    </ng-container>
+
+    <!-- Phone -->
+    <ng-container matColumnDef="phoneNumber">
+      <th mat-header-cell *matHeaderCellDef>Phone</th>
+      <td mat-cell *matCellDef="let client">{{ client.phoneNumber }}</td>
+    </ng-container>
+
+    <!-- Address -->
+    <ng-container matColumnDef="address">
+      <th mat-header-cell *matHeaderCellDef>Address</th>
+      <td mat-cell *matCellDef="let client">{{ client.address }}</td>
+    </ng-container>
+
+    <!-- Actions -->
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Actions</th>
+      <td mat-cell *matCellDef="let client">
+        <button mat-button color="primary" (click)="openEdit(client)">Edit</button>
+        <button mat-button color="warn" (click)="deleteClient(client.id)">Delete</button>
+      </td>
+    </ng-container>
+
+    <!-- HEADER & ROW DECLARATIONS -->
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
   </table>
 </div>

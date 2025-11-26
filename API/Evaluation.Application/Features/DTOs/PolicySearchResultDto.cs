@@ -23,6 +23,6 @@ namespace Evaluation.Application.Features.DTOs
 
         public decimal InsuredAmount { get; set; }
 
-        public string ClientName { get; set; } = default!;
+        public Guid ClientId { get; set; }
     }
 }

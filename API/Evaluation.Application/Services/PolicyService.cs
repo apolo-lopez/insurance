@@ -2,8 +2,10 @@
 using Evaluation.Application.Features.DTOs;
 using Evaluation.Application.Interfaces;
 using Evaluation.Domain.Entities;
+using Evaluation.Domain.Enums;
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Evaluation.Application.Services
@@ -11,12 +13,14 @@ namespace Evaluation.Application.Services
     public class PolicyService : IPolicyService
     {
         private readonly IPolicyRepository _policyRepository;
+        private readonly IClientRepository _clientRepository;
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
 
-        public PolicyService(IPolicyRepository policyRepository, IMapper mapper, IUnitOfWork unitOfWork)
+        public PolicyService(IPolicyRepository policyRepository, IClientRepository clientRepository, IMapper mapper, IUnitOfWork unitOfWork)
         {
             _policyRepository = policyRepository;
+            _clientRepository = clientRepository;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
         }
@@ -71,14 +75,37 @@ namespace Evaluation.Application.Services
             if (!Guid.TryParse(userId, out var clientGuid))
                 throw new ArgumentException("Invalid user ID format.", nameof(userId));
 
-            var policies = await _policyRepository.FindAsync(clientId: clientGuid);
+            var client = await this._clientRepository.GetByUserIdAsync(clientGuid);
+
+            if(client == null)
+            {
+                throw new ArgumentException("Invalid client.", nameof(client));
+            }
+
+            var policies = await _policyRepository.FindAsync(clientId: client.Id);
             return _mapper.Map<IEnumerable<PolicyDto>>(policies);
         }
 
-        public async Task<IEnumerable<PolicySearchResultDto>> SearchAsync(string? policyNumber, string? clientName)
+        public async Task<IEnumerable<PolicySearchResultDto>> SearchAsync(
+            Guid? clientId = null,
+            PolicyType? type = null,
+            PolicyStatus? status = null,
+            DateTime? from = null,
+            DateTime? to = null,
+            string? policyNumber = null,
+            int page = 1,
+            int pageSize = 20)
         {
             // Aquí usamos FindAsync para buscar por número de póliza
-            var policies = await _policyRepository.FindAsync(policyNumber: policyNumber);
+            var policies = await _policyRepository.FindAsync(
+                clientId: clientId, 
+                type: type, 
+                status: status, 
+                from: from, 
+                to: to, 
+                policyNumber: policyNumber, 
+                page: page, 
+                pageSize: pageSize);
             // Si quieres filtrar por nombre del cliente, tendrías que hacer join con la tabla Clients
             return _mapper.Map<IEnumerable<PolicySearchResultDto>>(policies);
         }
@@ -91,11 +118,8 @@ namespace Evaluation.Application.Services
             if (!string.IsNullOrEmpty(request.PolicyNumber))
                 policy.SetPolicyNumber(request.PolicyNumber);
 
-            if (request.StartDate.HasValue)
-                policy.SetStartDate(request.StartDate.Value.ToUniversalTime());
-
-            if (request.EndDate.HasValue)
-                policy.SetEndDate(request.EndDate.Value.ToUniversalTime());
+            if (request.StartDate.HasValue && request.EndDate.HasValue)
+                policy.UpdateDates(request.StartDate.Value.ToUniversalTime(), request.EndDate.Value.ToUniversalTime());
 
             if (request.InsuredAmount.HasValue)
                 policy.SetInsuredAmount(request.InsuredAmount.Value);

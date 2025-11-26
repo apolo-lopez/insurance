@@ -1,21 +1,45 @@
-import { Component, Input, Output, EventEmitter, OnChanges } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { PolicyService } from '../policy.service';
+import { Component, Inject, OnInit } from '@angular/core';
+import { FormBuilder, Validators, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { Policy } from '../policy.model';
-import { NgFor } from '@angular/common';
+import { PolicyService } from '../policy.service';
+
+import { MatDialogActions, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
+
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { NgFor, NgIf, NgSwitch } from '@angular/common';
+import { ClientService } from '../../clients/client.service';
+import { Client } from '../../clients/client.model';
+
+export interface PolicyDialogData {
+  policy: Policy | null;
+  isAdmin: boolean;
+}
 
 @Component({
   selector: 'app-policy-form',
   standalone: true,
   templateUrl: './policy-form.component.html',
-  imports: [ReactiveFormsModule, NgFor],
+  styleUrl: './policy-form.component.css',
+  imports: [
+    ReactiveFormsModule,
+    NgFor,
+    MatDialogModule,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    NgIf,
+],
 })
-export class PolicyFormComponent implements OnChanges {
-  @Input() policyData?: Policy;
-  @Output() formSubmit = new EventEmitter<Policy>();
-  @Output() closeForm = new EventEmitter<void>();
-
-  policyForm: FormGroup;
+export class PolicyFormComponent implements OnInit {
+  policyForm!: FormGroup;
   isSaving = false;
 
   types = [
@@ -32,101 +56,94 @@ export class PolicyFormComponent implements OnChanges {
     { value: 4, label: 'Cancelled' },
   ];
 
-  constructor(private fb: FormBuilder, private policyService: PolicyService) {
-    this.policyForm = this.fb.group({
-      policyNumber: ['', Validators.required],
-      clientId: ['', Validators.required],
-      policyType: ['', Validators.required],
-      startDate: ['', Validators.required],
-      endDate: [''],
-      policyStatus: ['', Validators.required],
-      insuredAmount: ['', [Validators.required, Validators.min(0)]],
-    });
-  }
+  clients: Client[] = [];
+  selectedClientId: string = '';
 
-  ngOnChanges(): void {
-    if (this.policyData) {
-        //console.log(this.policyData);
-        
+  constructor(
+    private fb: FormBuilder,
+    private policyService: PolicyService,
+    private clientService: ClientService,
+    private dialogRef: MatDialogRef<PolicyFormComponent>,
+    @Inject(MAT_DIALOG_DATA) public policyData: PolicyDialogData
+  ) {}
+
+  ngOnInit(): void {
+    if (this.policyData.isAdmin) this.loadClients();
+
+    const isAdmin = this.policyData.isAdmin;
+
+    this.policyForm = this.fb.group({
+      clientId: ['', Validators.required],
+      policyNumber: [{value: '', disabled: !isAdmin}, Validators.required],
+      policyType: [{value: '', disabled: !isAdmin}, Validators.required],
+      startDate: [{value: '', disabled: !isAdmin}, Validators.required],
+      endDate: [{value: '', disabled: !isAdmin}],
+      policyStatus: [{value: '', disabled: !isAdmin}, Validators.required],
+      insuredAmount: [{value: '', disabled: !isAdmin}, [Validators.required, Validators.min(0)]],
+    });
+
+    if (this.policyData.policy) {
       this.policyForm.patchValue({
-        clientId: this.policyData.clientId ?? '',
-        policyNumber: this.policyData.policyNumber ?? '',
-        policyType: this.policyData.policyType ?? '',
-        startDate: this.formatDate(this.policyData.startDate), // format 'YYYY-MM-DD'
-        endDate: this.formatDate(this.policyData.endDate),
-        policyStatus: this.getStatusNumber(this.policyData.policyStatus ?? ''),
-        insuredAmount: this.policyData.insuredAmount ?? '',
+        clientId: this.policyData.policy.clientId,
+        policyNumber: this.policyData.policy.policyNumber,
+        policyType: Number(this.policyData.policy.policyType),
+        startDate: this.formatDate(this.policyData.policy.startDate),
+        endDate: this.formatDate(this.policyData.policy.endDate),
+        policyStatus: Number(this.policyData.policy.policyStatus),
+        insuredAmount: this.policyData.policy.insuredAmount,
       });
     }
+  }
+
+  loadClients(): void {
+    this.clientService.getAll().subscribe({
+      next: (data) => {
+        this.clients = data;
+      },
+      error: (err) => {
+        console.error('Error loading clients', err);
+      },
+    });
   }
 
   formatDate(date: any): string {
     if (!date) return '';
-    // Admite formato Date y string "MM/DD/YYYY HH:mm:ss ..."
-    if (typeof date === 'string') {
-      const match = date.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-      if (match) return `${match[3]}-${match[1].padStart(2, '0')}-${match[2].padStart(2, '0')}`;
-      // Si ya es ISO, solo toma los 10 primeros caracteres
-      if (date.length > 10) return date.substring(0, 10);
-      return date;
-    }
-    // Si es objeto Date
-    const d = new Date(date);
-    return d.toISOString().substring(0, 10);
+    return new Date(date).toISOString().substring(0, 10);
   }
 
-  getStatusNumber(status: string): number | '' {
-    if (status === 'Active') return 1;
-    if (status === 'Cancelled') return 2;
-    if (status === 'Pending') return 3;
-    return '';
-  }
-
-  onSubmit(): void {
+  submit(): void {
     if (this.policyForm.invalid) return;
 
     this.isSaving = true;
+
+    const values = this.policyForm.value;
+
     const policyRequest = {
-      PolicyNumber: this.policyForm.value.policyNumber,
-      Type: Number(this.policyForm.value.policyType),
-      Status: Number(this.policyForm.value.policyStatus),
-      StartDate: this.policyForm.value.startDate,
-      EndDate: this.policyForm.value.endDate,
-      InsuredAmount: Number(this.policyForm.value.insuredAmount),
-      ClientId: this.policyForm.value.clientId,
-      // Si usas Id y CreatedAt al actualizar:
-      Id: this.policyData?.id ?? '',
-      CreatedAt: this.policyData?.createdAt || new Date().toISOString(),
+      Id: this.policyData.policy?.id ?? '',
+      ClientId: values.clientId,
+      PolicyNumber: values.policyNumber,
+      Type: Number(values.policyType),
+      Status: Number(values.policyStatus),
+      StartDate: values.startDate,
+      EndDate: values.endDate,
+      InsuredAmount: Number(values.insuredAmount),
+      CreatedAt: this.policyData.policy?.createdAt ?? new Date().toISOString(),
     };
 
-    if (!this.policyData) {
-      this.policyService.create(policyRequest).subscribe({
-        next: (result) => {
-          this.formSubmit.emit(result);
-          this.isSaving = false;
-        },
-        error: (err) => {
-          console.error('Error creating policy', err);
-          this.isSaving = false;
-        },
-      });
-    } else {
-      //console.log('policy type:', policyRequest);
+    const request = !this.policyData.policy
+      ? this.policyService.create(policyRequest)
+      : this.policyService.update(this.policyData.policy.id, policyRequest);
 
-      this.policyService.update(this.policyData.id, policyRequest).subscribe({
-        next: (result) => {
-          this.formSubmit.emit(result);
-          this.isSaving = false;
-        },
-        error: (err) => {
-          console.error('Error updating policy', err);
-          this.isSaving = false;
-        },
-      });
-    }
+    request.subscribe({
+      next: (result) => {
+        this.isSaving = false;
+        this.dialogRef.close(result);
+      },
+      error: () => (this.isSaving = false),
+    });
   }
 
-  onClose(): void {
-    this.closeForm.emit();
+  close(): void {
+    this.dialogRef.close(null);
   }
 }

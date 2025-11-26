@@ -1,49 +1,44 @@
-<form [formGroup]="clientForm" (ngSubmit)="onSubmit()">
-  <label>
-    Identification Number:
-    <input formControlName="identificationNumber" maxlength="10" />
-  </label>
-  <div
-    *ngIf="
-      clientForm.controls['identificationNumber'].invalid &&
-      clientForm.controls['identificationNumber'].touched
-    "
-  >
-    Identification Number is required and must be at most 10 characters.
-  </div>
+<h2 mat-dialog-title>{{ clientData ? 'Edit Client' : 'Create Client' }}</h2>
 
-  <label>
-    Name:
-    <input formControlName="name" maxlength="200" />
-  </label>
-  <div *ngIf="clientForm.controls['name'].invalid && clientForm.controls['name'].touched">
-    Name is required. Name must be at most 200 characters.
-  </div>
-  <label>
-    Email:
-    <input formControlName="email" type="email" maxlength="250" />
-  </label>
-  <div *ngIf="clientForm.controls['email'].invalid && clientForm.controls['email'].touched">
-    A valid email is required. Email must be at most 250 characters.
-  </div>
-  <label>
-    Phone Number:
-    <input formControlName="phoneNumber" maxlength="15" />
-  </label>
-  <div
-    *ngIf="clientForm.controls['phoneNumber'].invalid && clientForm.controls['phoneNumber'].touched"
-  >
-    Phone Number is required. Phone Number must be at most 15 characters.
-  </div>
-  <label>
-    Address:
-    <input formControlName="address" maxlength="500" />
-  </label>
-  <div *ngIf="clientForm.controls['address'].invalid && clientForm.controls['address'].touched">
-    Address is required. Address must be at most 500 characters.
-  </div>
-  <button type="submit" [disabled]="clientForm.invalid || isSaving">
-    {{ clientData ? 'Update Client' : 'Create Client' }}
+<mat-dialog-content class="dialog-content">
+  <form [formGroup]="clientForm" class="form-grid">
+
+    <mat-form-field appearance="outline">
+      <mat-label>Identification Number</mat-label>
+      <input matInput formControlName="identificationNumber">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="name">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Email</mat-label>
+      <input matInput formControlName="email" type="email">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Password</mat-label>
+      <input matInput formControlName="password" type="password">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Phone Number</mat-label>
+      <input matInput formControlName="phoneNumber">
+    </mat-form-field>
+
+    <mat-form-field class="full-width" appearance="outline">
+      <mat-label>Address</mat-label>
+      <textarea matInput formControlName="address"></textarea>
+    </mat-form-field>
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="close()">Close</button>
+  <button mat-flat-button color="primary" (click)="submit()" [disabled]="isSaving">
+    {{ clientData ? "Update" : "Create" }}
   </button>
-  <button (click)="onClose()">Close</button>
-</form>
+</mat-dialog-actions>

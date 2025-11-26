@@ -1,6 +1,7 @@
 ﻿using Evaluation.Application.Features.DTOs;
 using Evaluation.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Evaluation.API.Controllers
@@ -10,10 +11,12 @@ namespace Evaluation.API.Controllers
     public class ClientController : ControllerBase
     {
         private readonly IClientService _clientService;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public ClientController(IClientService clientService)
+        public ClientController(IClientService clientService, UserManager<IdentityUser> userManager)
         {
             _clientService = clientService;
+            _userManager = userManager;
         }
 
         // ----------------------------------------------
@@ -53,7 +56,45 @@ namespace Evaluation.API.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] CreateClientRequest request)
         {
-            var created = await _clientService.CreateAsync(request);
+            if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
+            {
+                return BadRequest("Email y password son obligatorios.");
+            }
+
+            var newUser = new IdentityUser
+            {
+                UserName = request.Email,
+                Email = request.Email,
+                EmailConfirmed = true
+            };
+
+            var createUserResult = await _userManager.CreateAsync(newUser, request.Password);
+
+            if (!createUserResult.Succeeded)
+            {
+                // Concatenamos las descripciones de los errores y devolvemos en una propiedad 'error'
+                var friendlyError = string.Join(" ", createUserResult.Errors.Select(e => e.Description));
+                var response = new
+                {
+                    success = false,
+                    error = friendlyError
+                };
+                return BadRequest(response);
+            }
+
+            await _userManager.AddToRoleAsync(newUser, "Client");
+
+            var clientDto = new CreateClientRequest
+            {
+                IdentificationNumber = request.IdentificationNumber,
+                Name = request.Name,
+                Email = request.Email,
+                PhoneNumber = request.PhoneNumber,
+                Address = request.Address,
+                UserId = newUser.Id
+            };
+
+            var created = await _clientService.CreateAsync(clientDto);
             return CreatedAtAction(nameof(GetClientById), new { id = created.Id }, created);
         }
 

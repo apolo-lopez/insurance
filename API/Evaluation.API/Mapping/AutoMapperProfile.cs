@@ -51,6 +51,10 @@ namespace Evaluation.API.Mapping
                         src.InsuredAmount,
                         src.Status
                     ));
+
+            // Policy → PolicySearchResultDto
+            CreateMap<Policy, PolicySearchResultDto>()
+                .ForMember(dest => dest.ClientId, opt => opt.MapFrom(src => src.ClientId));
         }
     }
 }

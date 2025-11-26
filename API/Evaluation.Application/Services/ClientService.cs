@@ -38,7 +38,7 @@ namespace Evaluation.Application.Services
                 request.Email,
                 request.PhoneNumber,
                 request.Address,
-                null
+                request.UserId
                 );
 
             await _clientRepository.AddAsync(client);

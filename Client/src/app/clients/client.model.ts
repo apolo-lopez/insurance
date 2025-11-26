@@ -7,6 +7,7 @@ export interface Client {
     identificationNumber: IdentificationNumber;
     name: string;
     email: string;
+    password: string;
     phoneNumber: string;
     address?: string;
     createdAt: string;

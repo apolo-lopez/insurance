@@ -1,4 +1,4 @@
-<div class="login">
+<!-- <div class="login">
   <h2>Login</h2>
   <form (submit)="onLogin($event)">
     <label>
@@ -12,4 +12,58 @@
     <button type="submit">Login</button>
     <div *ngIf="error" class="error">{{ error }}</div>
   </form>
+</div> -->
+<div class="login-container">
+  <mat-card class="login-card">
+    <mat-card-header>
+      <mat-card-title class="title">Iniciar Sesión</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="onLogin($event)">
+
+        <!-- USERNAME -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Usuario</mat-label>
+          <input matInput formControlName="email">
+          <mat-icon matSuffix>person</mat-icon>
+          <mat-error *ngIf="form.get('email')?.hasError('required')">
+            El usuario es obligatorio
+          </mat-error>
+        </mat-form-field>
+
+        <!-- PASSWORD -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Contraseña</mat-label>
+          <input matInput
+                 [type]="hidePassword ? 'password' : 'text'"
+                 formControlName="password">
+          <button type="button"
+                  mat-icon-button
+                  matSuffix
+                  (click)="hidePassword = !hidePassword">
+            <mat-icon>{{ hidePassword ? 'visibility' : 'visibility_off' }}</mat-icon>
+          </button>
+          <mat-error *ngIf="form.get('password')?.hasError('required')">
+            La contraseña es obligatoria
+          </mat-error>
+        </mat-form-field>
+
+        <!-- ERROR MESSAGE -->
+        <div class="error-message" *ngIf="errorMessage">
+          {{ errorMessage }}
+        </div>
+
+        <!-- LOGIN BUTTON -->
+        <button mat-raised-button
+                color="primary"
+                class="full-width"
+                [disabled]="form.invalid || loading">
+          <mat-progress-spinner diameter="20" *ngIf="loading"></mat-progress-spinner>
+          <span *ngIf="!loading">Ingresar</span>
+        </button>
+
+      </form>
+    </mat-card-content>
+  </mat-card>
 </div>

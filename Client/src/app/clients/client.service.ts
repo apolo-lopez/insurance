@@ -1,39 +1,49 @@
-import { Injectable } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
-import { Observable } from "rxjs";
-import { Client } from "./client.model";
-import { environment } from "../../environments/environment";
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { Client } from './client.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root',
 })
 export class ClientService {
-    private apiUrl = `${environment.apiUrl}/Client`;
+  private apiUrl = `${environment.apiUrl}/Client`;
 
-    constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {}
 
-    getAll(): Observable<Client[]> {
-        
-        return this.http.get<Client[]>(this.apiUrl);
-    }
+  getAll(): Observable<Client[]> {
+    return this.http.get<Client[]>(this.apiUrl);
+  }
 
-    getById(id: string): Observable<Client> {
-        return this.http.get<Client>(`${this.apiUrl}/${id}`);
-    }
+  getById(id: string): Observable<Client> {
+    return this.http.get<Client>(`${this.apiUrl}/${id}`);
+  }
 
-    create(client: Client): Observable<Client> {
-        return this.http.post<Client>(this.apiUrl, client);
-    }
+  create(client: Client): Observable<Client> {
+    return this.http.post<Client>(this.apiUrl, client);
+  }
 
-    update(id: string, client: Client): Observable<Client> {
-        return this.http.put<Client>(`${this.apiUrl}/${id}`, client);
-    }
+  update(id: string, client: Client): Observable<Client> {
+    return this.http.put<Client>(`${this.apiUrl}/${id}`, client);
+  }
 
-    delete(id: string): Observable<void> {
-        return this.http.delete<void>(`${this.apiUrl}/${id}`);
-    }
+  delete(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
 
-    search(term: string): Observable<Client[]> {
-        return this.http.get<Client[]>(`${this.apiUrl}?search=${term}`);
-    }
+  search(
+    name?: string,
+    email?: string,
+    identificationNumber?: string,
+    phoneNumber?: string
+  ): Observable<Client[]> {
+    let params: any = {};
+
+    if (name) params.name = name;
+    if (email) params.email = email;
+    if (identificationNumber) params.identificationNumber = identificationNumber;
+    if (phoneNumber) params.phoneNumber = phoneNumber;
+    return this.http.get<Client[]>(`${this.apiUrl}/search`, { params });
+  }
 }

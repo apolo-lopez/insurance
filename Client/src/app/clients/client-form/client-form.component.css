@@ -1,0 +1,14 @@
+.dialog-content {
+  padding-top: 10px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.full-width {
+  grid-column: span 2;
+}
