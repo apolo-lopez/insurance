@@ -20,10 +20,6 @@
 	</ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Evaluation.Application\Evaluation.Application.csproj" />
     <ProjectReference Include="..\Evaluation.Domain\Evaluation.Domain.csproj" />
     <ProjectReference Include="..\Evaluation.Infrastructure\Evaluation.Infrastructure.csproj" />

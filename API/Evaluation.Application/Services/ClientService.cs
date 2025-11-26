@@ -71,6 +71,12 @@ namespace Evaluation.Application.Services
             return client is null ? null : _mapper.Map<ClientDto>(client);
         }
 
+        public async Task<ClientDto?> GetByUserIdAsync(string userId)
+        {
+            var client = await _clientRepository.GetByUserIdAsync(Guid.Parse(userId));
+            return client == null ? null : _mapper.Map<ClientDto>(client);
+        }
+
         public async Task<IEnumerable<ClientDto>> SearchAsync(string? name = null, string? email = null, string? identificationNumber = null, string? phoneNumber = null)
         {
             var clients = await _clientRepository.SearchAsync(name, email, identificationNumber, phoneNumber);

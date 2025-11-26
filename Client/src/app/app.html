@@ -32,6 +32,11 @@
         <span>Clients</span>
       </a>
 
+      <a mat-list-item routerLink="/profile" *ngIf="!isAdmin">
+        <mat-icon matListItemIcon>account_circle</mat-icon>
+        <span>My Profile</span>
+      </a>
+
       <a mat-list-item (click)="logout(); closeOnMobile(sidenav)">
         <mat-icon matListItemIcon>logout</mat-icon>
         <span>Logout</span>
@@ -51,10 +56,10 @@
 
       <span class="spacer"></span>
 
-      <button mat-icon-button>
-        <mat-icon>account_circle</mat-icon>
-      </button>
-    </mat-toolbar>
+    <button mat-icon-button>
+      <mat-icon>account_circle</mat-icon>
+    </button>
+  </mat-toolbar>
 
     <!-- PAGE CONTENT siempre visible -->
     <div class="page-container">

@@ -11,6 +11,7 @@ namespace Evaluation.Application.Interfaces
     {
         Task<IEnumerable<ClientDto>> GetAllClientsAsync(int page, int pageSize = 20);
         Task<ClientDto?> GetByIdAsync(Guid id);
+        Task<ClientDto?> GetByUserIdAsync(string userId);
         Task<ClientDto> CreateAsync(CreateClientRequest request);
         Task<ClientDto> UpdateAsync(Guid id, UpdateClientRequest request);
         Task<bool> DeleteAsync(Guid id);

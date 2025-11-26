@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { AuthService } from './auth/auth.service';
 import { NgIf } from '@angular/common';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-root',
@@ -22,7 +23,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     MatIconModule,
     MatListModule,
     MatButtonModule,
-    MatSnackBarModule
+    MatSnackBarModule,
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss',
@@ -32,7 +33,7 @@ export class App implements OnInit {
 
   isMobile = false;
 
-  constructor(private router: Router, private authService: AuthService, private cd: ChangeDetectorRef) {}
+  constructor(private router: Router, private authService: AuthService, private cd: ChangeDetectorRef, private dialog: MatDialog) {}
 
   ngOnInit() {
     this.checkMobile();

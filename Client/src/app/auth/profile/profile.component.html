@@ -1,0 +1,21 @@
+<div class="profile-container">
+  <h2>Mi perfil</h2>
+
+  <form [formGroup]="profileForm" (ngSubmit)="submit()" class="profile-form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Phone</mat-label>
+      <input matInput formControlName="phoneNumber" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Address</mat-label>
+      <textarea matInput formControlName="address"></textarea>
+    </mat-form-field>
+
+    <div class="form-actions">
+      <button mat-flat-button color="primary" type="submit" [disabled]="profileForm.invalid || isSaving">
+        Save Changes
+      </button>
+    </div>
+  </form>
+</div>
